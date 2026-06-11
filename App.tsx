@@ -194,7 +194,7 @@ const Footer = () => (
             </li>
             <li className="flex items-start gap-4">
               <Mail className="w-5 h-5 text-brand-gold shrink-0" />
-              <span className="text-sm font-light text-white/60">bhgeduconsult7@gmail.com</span>
+              <span className="text-sm font-light text-white/60">info@bhgeducationconsult.com</span>
             </li>
             <li className="flex items-start gap-4">
               <MapPin className="w-5 h-5 text-brand-gold shrink-0" />
@@ -427,7 +427,7 @@ const HomePage = () => (
             </div>
             <div>
               <h4 className="font-bold text-brand-navy mb-2 tracking-widest text-xs uppercase">Official Inquiry</h4>
-              <p className="text-xl font-serif font-bold text-brand-navy break-all">bhgeduconsult7@gmail.com</p>
+              <p className="text-xl font-serif font-bold text-brand-navy break-all">info@bhgeducationconsult.com</p>
             </div>
           </div>
         </div>

@@ -14,7 +14,7 @@ function createTransporter() {
 }
 
 const FROM = '"B.H.G Education Consult" <info@bhgeducationconsult.com>';
-const BUSINESS_EMAIL = 'bhgeduconsult7@gmail.com';
+const BUSINESS_EMAIL = 'info@bhgeducationconsult.com';
 
 function row(label: string, value: string) {
   return `<tr>
@@ -105,7 +105,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     <p style="color:#555;font-size:14px;">If you have any questions in the meantime, please reach out:</p>
     <table style="width:100%;border-collapse:collapse;">
       ${row('Phone', '0205103678 / 0555284520')}
-      ${row('Email', 'bhgeduconsult7@gmail.com')}
+      ${row('Email', 'info@bhgeducationconsult.com')}
     </table>
     <p style="color:#C5A059;font-style:italic;font-size:14px;margin-top:24px;">"Unique Elegance" — By His Grace Education Consult</p>`;
 
