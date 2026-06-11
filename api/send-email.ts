@@ -1,15 +1,17 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import nodemailer from 'nodemailer';
 
-const transporter = nodemailer.createTransport({
-  host: 'mail.smtp2go.com',
-  port: 2525,
-  secure: false,
-  auth: {
-    user: 'bhgeducationconsult',
-    pass: process.env.SMTP2GO_PASSWORD,
-  },
-});
+function createTransporter() {
+  return nodemailer.createTransport({
+    host: 'mail.smtp2go.com',
+    port: 2525,
+    secure: false,
+    auth: {
+      user: 'bhgeducationconsult',
+      pass: process.env.SMTP2GO_PASSWORD ?? 'eOjO3OfKFDUEtEOL',
+    },
+  });
+}
 
 const FROM = '"B.H.G Education Consult" <info@bhgeducationconsult.com>';
 const BUSINESS_EMAIL = 'bhgeduconsult7@gmail.com';
@@ -106,6 +108,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       ${row('Email', 'bhgeduconsult7@gmail.com')}
     </table>
     <p style="color:#C5A059;font-style:italic;font-size:14px;margin-top:24px;">"Unique Elegance" — By His Grace Education Consult</p>`;
+
+  const transporter = createTransporter();
 
   try {
     await transporter.sendMail({
