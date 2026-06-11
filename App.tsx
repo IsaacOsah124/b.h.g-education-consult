@@ -19,7 +19,7 @@ import {
   Clock,
   ShieldCheck
 } from "lucide-react";
-import React, { useState, type ReactNode, useEffect } from "react";
+import { useState, type ReactNode, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from "react-router-dom";
 
 // --- Types ---
@@ -438,15 +438,43 @@ const HomePage = () => (
 
 const BECERegistrationPage = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
   const subjects = [
-    "English Language", "Mathematics", "Integrated Science", "Social Studies", 
-    "RME (Religious and Moral Education)", "French", "Ga", "Asante Twi", 
+    "English Language", "Mathematics", "Integrated Science", "Social Studies",
+    "RME (Religious and Moral Education)", "French", "Ga", "Asante Twi",
     "Career Technology", "Creative Arts and Design", "Computing", "Arabic"
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: { preventDefault(): void; currentTarget: HTMLFormElement }) => {
     e.preventDefault();
-    setIsSubmitted(true);
+    setIsLoading(true);
+    setError('');
+    const fd = new FormData(e.currentTarget);
+    try {
+      const res = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          formType: 'bece',
+          data: {
+            fullName: fd.get('fullName'),
+            gender: fd.get('gender'),
+            phone: fd.get('phone'),
+            email: fd.get('email'),
+            previousSchool: fd.get('previousSchool'),
+            currentClass: fd.get('currentClass'),
+            subjects: fd.getAll('subjects'),
+          },
+        }),
+      });
+      if (!res.ok) throw new Error();
+      setIsSubmitted(true);
+    } catch {
+      setError('Something went wrong. Please call us on 0205103678 or try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -464,18 +492,18 @@ const BECERegistrationPage = () => {
                 BECE Private <br /> Registration
               </h1>
               <div className="h-[2px] w-20 bg-brand-gold" />
-              
+
               <div className="bg-brand-navy p-8 rounded-3xl text-white gold-border border-2">
                 <h4 className="font-bold text-brand-gold uppercase tracking-widest text-[10px] mb-4">Important Notice</h4>
                 <p className="text-white/70 text-sm leading-relaxed font-light italic">
-                  Please ensure all personal details and subject selections are 100% accurate before submission. 
+                  Please ensure all personal details and subject selections are 100% accurate before submission.
                   Incorrect data may lead to delays in candidate processing and examination eligibility.
                 </p>
               </div>
             </div>
 
             <div className="lg:col-span-2">
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 className="bg-white p-8 md:p-14 rounded-[3rem] shadow-2xl border border-brand-gold/20"
@@ -484,11 +512,11 @@ const BECERegistrationPage = () => {
                   <div className="grid md:grid-cols-2 gap-8">
                     <div className="space-y-3">
                       <label className="text-[10px] uppercase tracking-widest text-brand-navy font-bold opacity-60">Full Name</label>
-                      <input required type="text" className="w-full px-0 py-3 bg-transparent border-b-2 border-brand-gold/20 focus:border-brand-navy outline-none transition-all placeholder:text-brand-navy/20" placeholder="Enter Full Name" />
+                      <input required name="fullName" type="text" className="w-full px-0 py-3 bg-transparent border-b-2 border-brand-gold/20 focus:border-brand-navy outline-none transition-all placeholder:text-brand-navy/20" placeholder="Enter Full Name" />
                     </div>
                     <div className="space-y-3">
                       <label className="text-[10px] uppercase tracking-widest text-brand-navy font-bold opacity-60">Gender</label>
-                      <select required className="w-full px-0 py-3 bg-transparent border-b-2 border-brand-gold/20 focus:border-brand-navy outline-none transition-all appearance-none cursor-pointer">
+                      <select required name="gender" className="w-full px-0 py-3 bg-transparent border-b-2 border-brand-gold/20 focus:border-brand-navy outline-none transition-all appearance-none cursor-pointer">
                         <option value="">Select Gender</option>
                         <option value="male">Male</option>
                         <option value="female">Female</option>
@@ -498,12 +526,23 @@ const BECERegistrationPage = () => {
 
                   <div className="grid md:grid-cols-2 gap-8">
                     <div className="space-y-3">
+                      <label className="text-[10px] uppercase tracking-widest text-brand-navy font-bold opacity-60">Phone Number</label>
+                      <input required name="phone" type="tel" className="w-full px-0 py-3 bg-transparent border-b-2 border-brand-gold/20 focus:border-brand-navy outline-none transition-all placeholder:text-brand-navy/20" placeholder="Parent / Guardian Phone" />
+                    </div>
+                    <div className="space-y-3">
+                      <label className="text-[10px] uppercase tracking-widest text-brand-navy font-bold opacity-60">Email Address</label>
+                      <input required name="email" type="email" className="w-full px-0 py-3 bg-transparent border-b-2 border-brand-gold/20 focus:border-brand-navy outline-none transition-all placeholder:text-brand-navy/20" placeholder="Parent / Guardian Email" />
+                    </div>
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-8">
+                    <div className="space-y-3">
                       <label className="text-[10px] uppercase tracking-widest text-brand-navy font-bold opacity-60">Previous School</label>
-                      <input required type="text" className="w-full px-0 py-3 bg-transparent border-b-2 border-brand-gold/20 focus:border-brand-navy outline-none transition-all placeholder:text-brand-navy/20" placeholder="School Name" />
+                      <input required name="previousSchool" type="text" className="w-full px-0 py-3 bg-transparent border-b-2 border-brand-gold/20 focus:border-brand-navy outline-none transition-all placeholder:text-brand-navy/20" placeholder="School Name" />
                     </div>
                     <div className="space-y-3">
                       <label className="text-[10px] uppercase tracking-widest text-brand-navy font-bold opacity-60">Current Class/Level</label>
-                      <select required className="w-full px-0 py-3 bg-transparent border-b-2 border-brand-gold/20 focus:border-brand-navy outline-none transition-all appearance-none cursor-pointer">
+                      <select required name="currentClass" className="w-full px-0 py-3 bg-transparent border-b-2 border-brand-gold/20 focus:border-brand-navy outline-none transition-all appearance-none cursor-pointer">
                         <option value="candidate">Candidate / Private</option>
                         <option value="jhs3">JHS 3</option>
                         <option value="jhs2">JHS 2</option>
@@ -519,15 +558,17 @@ const BECERegistrationPage = () => {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {subjects.map((sub) => (
                         <label key={sub} className="flex items-center gap-3 p-4 rounded-2xl border border-brand-gold/10 hover:border-brand-navy/20 transition-all cursor-pointer group">
-                          <input type="checkbox" className="w-5 h-5 rounded accent-brand-gold" />
+                          <input type="checkbox" name="subjects" value={sub} className="w-5 h-5 rounded accent-brand-gold" />
                           <span className="text-sm font-medium text-brand-navy/80 group-hover:text-brand-navy">{sub}</span>
                         </label>
                       ))}
                     </div>
                   </div>
 
-                  <button type="submit" className="w-full bg-brand-gold text-white py-6 rounded-full font-bold uppercase tracking-[0.3em] text-xs hover:bg-brand-navy transition-all gold-shadow">
-                    Submit Application
+                  {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+
+                  <button type="submit" disabled={isLoading} className="w-full bg-brand-gold text-white py-6 rounded-full font-bold uppercase tracking-[0.3em] text-xs hover:bg-brand-navy transition-all gold-shadow disabled:opacity-60 disabled:cursor-not-allowed">
+                    {isLoading ? 'Submitting...' : 'Submit Application'}
                   </button>
                 </form>
               </motion.div>
@@ -541,10 +582,39 @@ const BECERegistrationPage = () => {
 
 const HomeTuitionPage = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: { preventDefault(): void; currentTarget: HTMLFormElement }) => {
     e.preventDefault();
-    setIsSubmitted(true);
+    setIsLoading(true);
+    setError('');
+    const fd = new FormData(e.currentTarget);
+    try {
+      const res = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          formType: 'home-tuition',
+          data: {
+            studentName: fd.get('studentName'),
+            studentGender: fd.get('studentGender'),
+            phone: fd.get('phone'),
+            email: fd.get('email'),
+            teacherGender: fd.get('teacherGender'),
+            location: fd.get('location'),
+            numSubjects: fd.get('numSubjects'),
+            notes: fd.get('notes'),
+          },
+        }),
+      });
+      if (!res.ok) throw new Error();
+      setIsSubmitted(true);
+    } catch {
+      setError('Something went wrong. Please call us on 0205103678 or try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -562,7 +632,7 @@ const HomeTuitionPage = () => {
                 Personalized <br /> Home Tuition
               </h1>
               <div className="h-[2px] w-20 bg-brand-gold" />
-              
+
               <div className="space-y-8">
                 {[
                   { icon: ShieldCheck, title: "Rigorous Vetting", desc: "Every tutor undergoes background checks and quality audits." },
@@ -581,7 +651,7 @@ const HomeTuitionPage = () => {
             </div>
 
             <div className="lg:col-span-2">
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="bg-white p-8 md:p-14 rounded-[3rem] shadow-2xl border border-brand-gold/20"
@@ -589,7 +659,7 @@ const HomeTuitionPage = () => {
                 <form onSubmit={handleSubmit} className="space-y-10">
                   <div className="space-y-3">
                     <label className="text-[10px] uppercase tracking-widest text-brand-navy font-bold opacity-60">Student's Full Name</label>
-                    <input required type="text" className="w-full px-0 py-3 bg-transparent border-b-2 border-brand-gold/20 focus:border-brand-navy outline-none transition-all placeholder:text-brand-navy/20" placeholder="Child's Full Name" />
+                    <input required name="studentName" type="text" className="w-full px-0 py-3 bg-transparent border-b-2 border-brand-gold/20 focus:border-brand-navy outline-none transition-all placeholder:text-brand-navy/20" placeholder="Child's Full Name" />
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-8">
@@ -597,18 +667,18 @@ const HomeTuitionPage = () => {
                       <label className="text-[10px] uppercase tracking-widest text-brand-navy font-bold opacity-60">Student's Gender</label>
                       <div className="flex gap-6 py-2">
                         <label className="flex items-center gap-2 cursor-pointer group">
-                          <input required type="radio" name="student_gender" className="w-4 h-4 accent-brand-gold" />
+                          <input required type="radio" name="studentGender" value="male" className="w-4 h-4 accent-brand-gold" />
                           <span className="text-sm font-medium">Male</span>
                         </label>
                         <label className="flex items-center gap-2 cursor-pointer group">
-                          <input required type="radio" name="student_gender" className="w-4 h-4 accent-brand-gold" />
+                          <input required type="radio" name="studentGender" value="female" className="w-4 h-4 accent-brand-gold" />
                           <span className="text-sm font-medium">Female</span>
                         </label>
                       </div>
                     </div>
                     <div className="space-y-3">
                       <label className="text-[10px] uppercase tracking-widest text-brand-navy font-bold opacity-60">Teacher's Gender Preference</label>
-                      <select required className="w-full px-0 py-3 bg-transparent border-b-2 border-brand-gold/20 focus:border-brand-navy outline-none transition-all appearance-none cursor-pointer">
+                      <select required name="teacherGender" className="w-full px-0 py-3 bg-transparent border-b-2 border-brand-gold/20 focus:border-brand-navy outline-none transition-all appearance-none cursor-pointer">
                         <option value="none">No Preference</option>
                         <option value="male">Male Teacher</option>
                         <option value="female">Female Teacher</option>
@@ -618,22 +688,35 @@ const HomeTuitionPage = () => {
 
                   <div className="grid md:grid-cols-2 gap-8">
                     <div className="space-y-3">
+                      <label className="text-[10px] uppercase tracking-widest text-brand-navy font-bold opacity-60">Phone Number</label>
+                      <input required name="phone" type="tel" className="w-full px-0 py-3 bg-transparent border-b-2 border-brand-gold/20 focus:border-brand-navy outline-none transition-all placeholder:text-brand-navy/20" placeholder="Parent / Guardian Phone" />
+                    </div>
+                    <div className="space-y-3">
+                      <label className="text-[10px] uppercase tracking-widest text-brand-navy font-bold opacity-60">Email Address</label>
+                      <input required name="email" type="email" className="w-full px-0 py-3 bg-transparent border-b-2 border-brand-gold/20 focus:border-brand-navy outline-none transition-all placeholder:text-brand-navy/20" placeholder="Parent / Guardian Email" />
+                    </div>
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-8">
+                    <div className="space-y-3">
                       <label className="text-[10px] uppercase tracking-widest text-brand-navy font-bold opacity-60">Current Location (Accra)</label>
-                      <input required type="text" className="w-full px-0 py-3 bg-transparent border-b-2 border-brand-gold/20 focus:border-brand-navy outline-none transition-all placeholder:text-brand-navy/20" placeholder="e.g. East Legon, Cantonments" />
+                      <input required name="location" type="text" className="w-full px-0 py-3 bg-transparent border-b-2 border-brand-gold/20 focus:border-brand-navy outline-none transition-all placeholder:text-brand-navy/20" placeholder="e.g. East Legon, Cantonments" />
                     </div>
                     <div className="space-y-3">
                       <label className="text-[10px] uppercase tracking-widest text-brand-navy font-bold opacity-60">Number of Subjects</label>
-                      <input required type="number" min="1" max="10" className="w-full px-0 py-3 bg-transparent border-b-2 border-brand-gold/20 focus:border-brand-navy outline-none transition-all" defaultValue="1" />
+                      <input required name="numSubjects" type="number" min="1" max="10" className="w-full px-0 py-3 bg-transparent border-b-2 border-brand-gold/20 focus:border-brand-navy outline-none transition-all" defaultValue="1" />
                     </div>
                   </div>
 
                   <div className="space-y-3">
                     <label className="text-[10px] uppercase tracking-widest text-brand-navy font-bold opacity-60">Additional Requirements / Notes</label>
-                    <textarea rows={3} className="w-full px-0 py-3 bg-transparent border-b-2 border-brand-gold/20 focus:border-brand-navy outline-none transition-all resize-none placeholder:text-brand-navy/20" placeholder="Any specific learning challenges or goals?"></textarea>
+                    <textarea name="notes" rows={3} className="w-full px-0 py-3 bg-transparent border-b-2 border-brand-gold/20 focus:border-brand-navy outline-none transition-all resize-none placeholder:text-brand-navy/20" placeholder="Any specific learning challenges or goals?"></textarea>
                   </div>
 
-                  <button type="submit" className="w-full bg-brand-gold text-white py-6 rounded-full font-bold uppercase tracking-[0.3em] text-xs hover:bg-brand-navy transition-all gold-shadow">
-                    Submit Tuition Request
+                  {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+
+                  <button type="submit" disabled={isLoading} className="w-full bg-brand-gold text-white py-6 rounded-full font-bold uppercase tracking-[0.3em] text-xs hover:bg-brand-navy transition-all gold-shadow disabled:opacity-60 disabled:cursor-not-allowed">
+                    {isLoading ? 'Submitting...' : 'Submit Tuition Request'}
                   </button>
                 </form>
               </motion.div>
@@ -647,10 +730,38 @@ const HomeTuitionPage = () => {
 
 const OnlineTuitionPage = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: { preventDefault(): void; currentTarget: HTMLFormElement }) => {
     e.preventDefault();
-    setIsSubmitted(true);
+    setIsLoading(true);
+    setError('');
+    const fd = new FormData(e.currentTarget);
+    try {
+      const res = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          formType: 'online-tuition',
+          data: {
+            fullName: fd.get('fullName'),
+            age: fd.get('age'),
+            gender: fd.get('gender'),
+            currentClass: fd.get('currentClass'),
+            school: fd.get('school'),
+            phone: fd.get('phone'),
+            email: fd.get('email'),
+          },
+        }),
+      });
+      if (!res.ok) throw new Error();
+      setIsSubmitted(true);
+    } catch {
+      setError('Something went wrong. Please call us on 0205103678 or try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -670,36 +781,36 @@ const OnlineTuitionPage = () => {
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-24">
           {[
-            { 
-              icon: Video, 
-              title: "Interactive Classrooms", 
-              desc: "Modern real-time whiteboard tools for dynamic remote learning." 
+            {
+              icon: Video,
+              title: "Interactive Classrooms",
+              desc: "Modern real-time whiteboard tools for dynamic remote learning."
             },
-            { 
-              icon: GraduationCap, 
-              title: "All Subjects Covered", 
-              desc: "Comprehensive Primary, JHS, and SHS level curriculum coverage." 
+            {
+              icon: GraduationCap,
+              title: "All Subjects Covered",
+              desc: "Comprehensive Primary, JHS, and SHS level curriculum coverage."
             },
-            { 
-              icon: Clock, 
-              title: "Flexible Scheduling", 
-              desc: "Personalized learning fits into your child's unique daily routine." 
+            {
+              icon: Clock,
+              title: "Flexible Scheduling",
+              desc: "Personalized learning fits into your child's unique daily routine."
             },
-            { 
-              icon: CheckCircle2, 
-              title: "Recorded Sessions", 
-              desc: "Rewatch any class at any time for easy revision and review." 
+            {
+              icon: CheckCircle2,
+              title: "Recorded Sessions",
+              desc: "Rewatch any class at any time for easy revision and review."
             }
           ].map((feature, i) => (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.1 }}
               viewport={{ once: true }}
-              key={i} 
+              key={i}
               className="p-10 bg-brand-offwhite rounded-[2.5rem] border border-brand-gold/20 gold-shadow text-center"
             >
-              <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mx-auto mb-8 gold-border border-2" >
+              <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center mx-auto mb-8 gold-border border-2">
                 <feature.icon className="w-8 h-8 text-brand-gold" />
               </div>
               <h4 className="font-serif font-bold text-xl text-brand-navy mb-4">{feature.title}</h4>
@@ -712,7 +823,7 @@ const OnlineTuitionPage = () => {
           {isSubmitted ? (
             <SubmissionSuccess />
           ) : (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -727,18 +838,18 @@ const OnlineTuitionPage = () => {
                 <div className="grid md:grid-cols-2 gap-8">
                   <div className="space-y-2">
                     <label className="text-[10px] uppercase tracking-widest text-brand-navy font-bold opacity-60">Full Name</label>
-                    <input required type="text" className="w-full px-0 py-3 bg-transparent border-b-2 border-brand-gold/20 focus:border-brand-navy outline-none transition-all placeholder:text-brand-navy/20" placeholder="Student's Name" />
+                    <input required name="fullName" type="text" className="w-full px-0 py-3 bg-transparent border-b-2 border-brand-gold/20 focus:border-brand-navy outline-none transition-all placeholder:text-brand-navy/20" placeholder="Student's Name" />
                   </div>
                   <div className="space-y-2">
                     <label className="text-[10px] uppercase tracking-widest text-brand-navy font-bold opacity-60">Age</label>
-                    <input required type="number" min="5" max="25" className="w-full px-0 py-3 bg-transparent border-b-2 border-brand-gold/20 focus:border-brand-navy outline-none transition-all" placeholder="Years" />
+                    <input required name="age" type="number" min="5" max="25" className="w-full px-0 py-3 bg-transparent border-b-2 border-brand-gold/20 focus:border-brand-navy outline-none transition-all" placeholder="Years" />
                   </div>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-8">
                   <div className="space-y-2">
                     <label className="text-[10px] uppercase tracking-widest text-brand-navy font-bold opacity-60">Gender</label>
-                    <select required className="w-full px-0 py-3 bg-transparent border-b-2 border-brand-gold/20 focus:border-brand-navy outline-none transition-all appearance-none cursor-pointer">
+                    <select required name="gender" className="w-full px-0 py-3 bg-transparent border-b-2 border-brand-gold/20 focus:border-brand-navy outline-none transition-all appearance-none cursor-pointer">
                       <option value="">Select Gender</option>
                       <option value="male">Male</option>
                       <option value="female">Female</option>
@@ -746,26 +857,33 @@ const OnlineTuitionPage = () => {
                   </div>
                   <div className="space-y-2">
                     <label className="text-[10px] uppercase tracking-widest text-brand-navy font-bold opacity-60">Current Class / Grade Level</label>
-                    <input required type="text" className="w-full px-0 py-3 bg-transparent border-b-2 border-brand-gold/20 focus:border-brand-navy outline-none transition-all placeholder:text-brand-navy/20" placeholder="e.g. JHS 1, Grade 9" />
+                    <input required name="currentClass" type="text" className="w-full px-0 py-3 bg-transparent border-b-2 border-brand-gold/20 focus:border-brand-navy outline-none transition-all placeholder:text-brand-navy/20" placeholder="e.g. JHS 1, Grade 9" />
                   </div>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-8">
                   <div className="space-y-2">
                     <label className="text-[10px] uppercase tracking-widest text-brand-navy font-bold opacity-60">Current School</label>
-                    <input required type="text" className="w-full px-0 py-3 bg-transparent border-b-2 border-brand-gold/20 focus:border-brand-navy outline-none transition-all placeholder:text-brand-navy/20" placeholder="School Name" />
+                    <input required name="school" type="text" className="w-full px-0 py-3 bg-transparent border-b-2 border-brand-gold/20 focus:border-brand-navy outline-none transition-all placeholder:text-brand-navy/20" placeholder="School Name" />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[10px] uppercase tracking-widest text-brand-navy font-bold opacity-60">WhatsApp Number</label>
+                    <label className="text-[10px] uppercase tracking-widest text-brand-navy font-bold opacity-60">Phone / WhatsApp Number</label>
                     <div className="relative">
-                      <input required type="tel" className="w-full pl-8 pr-0 py-3 bg-transparent border-b-2 border-brand-gold/20 focus:border-brand-navy outline-none transition-all placeholder:text-brand-navy/20" placeholder="Contact number" />
-                      <Mail className="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-gold/40" />
+                      <input required name="phone" type="tel" className="w-full pl-8 pr-0 py-3 bg-transparent border-b-2 border-brand-gold/20 focus:border-brand-navy outline-none transition-all placeholder:text-brand-navy/20" placeholder="Contact number" />
+                      <Phone className="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-gold/40" />
                     </div>
                   </div>
                 </div>
 
-                <button type="submit" className="w-full bg-brand-gold text-white py-6 rounded-full font-bold uppercase tracking-[0.3em] text-xs hover:bg-brand-navy transition-all gold-shadow">
-                  Submit Online Admission Application
+                <div className="space-y-2">
+                  <label className="text-[10px] uppercase tracking-widest text-brand-navy font-bold opacity-60">Email Address</label>
+                  <input required name="email" type="email" className="w-full px-0 py-3 bg-transparent border-b-2 border-brand-gold/20 focus:border-brand-navy outline-none transition-all placeholder:text-brand-navy/20" placeholder="Student / Parent Email" />
+                </div>
+
+                {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+
+                <button type="submit" disabled={isLoading} className="w-full bg-brand-gold text-white py-6 rounded-full font-bold uppercase tracking-[0.3em] text-xs hover:bg-brand-navy transition-all gold-shadow disabled:opacity-60 disabled:cursor-not-allowed">
+                  {isLoading ? 'Submitting...' : 'Submit Online Admission Application'}
                 </button>
               </form>
             </motion.div>
